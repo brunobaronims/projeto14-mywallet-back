@@ -1,11 +1,11 @@
 import { userSchema } from "../schema/user.schema.js";
-import { usersCollection } from "../db/mongo.js";
+import { userCollection } from "../db/mongo.js";
 import { stripHtml } from "string-strip-html";
 
 export async function signUpValidation(req, res, next) {
   const data = req.body;
   const name = stripHtml(data.name).result;
-  const nameIsRegistered = await usersCollection.findOne({ name: name });
+  const nameIsRegistered = await userCollection.findOne({ name: name });
 
   if (nameIsRegistered) 
     return res.status(409).send('Nome de usuário já cadastrado');

@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
-import { v4 } from 'uuid';
-import { usersCollection } from '../db/mongo.js';
+import { v4 as uuid } from 'uuid';
+import { userCollection, sessionCollection } from '../db/mongo.js';
 
 export async function signUp(req, res) {
   const data = await req.body;
@@ -8,7 +8,7 @@ export async function signUp(req, res) {
 
   try {
     await bcrypt.hash(data.password, saltRounds, async (err, hash) => {
-      await usersCollection.insertOne({ ...data, password: hash });
+      await userCollection.insertOne({ ...data, password: hash });
       return res.sendStatus(201);
     });
   } catch (e) {
@@ -18,5 +18,18 @@ export async function signUp(req, res) {
 };
 
 export async function signIn(req, res) {
-  return null;
+  const token = uuid();
+
+  try {
+    const user = req.currentUser;
+    await sessionCollection.insertOne({
+      token,
+      userId: user._id
+    })
+    
+    res.send({ token });
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
 };
