@@ -1,17 +1,20 @@
 import { transactionCollection } from "../db/mongo.js";
 import { stripHtml } from "string-strip-html";
+import dayjs from 'dayjs';
 
 export async function newTransaction(req, res) {
   const data = req.body;
   const type = req.params.type;
   const description = stripHtml(data.description).result;
+  const date = dayjs(Date(Date.now())).format('DD/MM');
 
   try {
     await transactionCollection.insertOne({
       email: req.currentUser.email,
       amount: data.amount,
       description: description,
-      type: type
+      type: type,
+      date: date
     });
 
     return res.sendStatus(201);
